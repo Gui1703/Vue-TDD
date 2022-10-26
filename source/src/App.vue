@@ -2,13 +2,15 @@
 import SignUpPage from "./pages/SignUpPage.vue";
 
 export default {
-  name:"App",
+  name: "App",
   components: {
-    SignUpPage
-  }
-}
+    SignUpPage,
+  },
+};
 </script>
 
 <template>
-  <SignUpPage />
+  <div class="container">
+    <SignUpPage />
+  </div>
 </template>
