@@ -21,8 +21,6 @@ export default {
       :value="modelValue"
       @input="$emit('update:modelValue', $event.target.value)"
     />
-    <span class="invalid-feedback">{{ help }}</span>
+    <span v-if="help" class="invalid-feedback">{{ help }}</span>
   </div>
 </template>
-
-<style lang="scss" scoped></style>

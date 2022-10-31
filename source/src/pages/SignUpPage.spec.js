@@ -4,6 +4,8 @@ import { render, screen, waitFor } from "@testing-library/vue";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
 
+let button, passwordInput, passwordRepeatInput, usernameInput;
+
 const generateValidationError = (field, message) => {
   return rest.post("/api/1.0/users", (req, res, ctx) => {
     return res(
@@ -13,9 +15,32 @@ const generateValidationError = (field, message) => {
   });
 };
 
-describe("Sign Up Page", () => {
-  let button;
+let requestBody;
+const server = setupServer(
+  rest.post("/api/1.0/users", (req, res, ctx) => {
+    requestBody = req.body;
+    return res(ctx.status(200));
+  })
+);
 
+beforeAll(() => server.listen());
+
+afterAll(() => server.close());
+
+const setup = async () => {
+  render(SignUpPage);
+  usernameInput = screen.queryByLabelText("Username");
+  const emailInput = screen.queryByLabelText("E-mail");
+  passwordInput = screen.queryByLabelText("Password");
+  passwordRepeatInput = screen.queryByLabelText("Password Repeat");
+  button = screen.queryByRole("button", { name: "Sign Up" });
+  await userEvent.type(usernameInput, "user1");
+  await userEvent.type(emailInput, "user1@mail.com");
+  await userEvent.type(passwordInput, "P4ssword");
+  await userEvent.type(passwordRepeatInput, "P4ssword");
+};
+
+describe("Sign Up Page", () => {
   describe("Layout", () => {
     it("has Sign Up Header", () => {
       render(SignUpPage);
@@ -71,31 +96,6 @@ describe("Sign Up Page", () => {
   });
 
   describe("Interactions", () => {
-    let requestBody;
-    const server = setupServer(
-      rest.post("/api/1.0/users", (req, res, ctx) => {
-        requestBody = req.body;
-        return res(ctx.status(200));
-      })
-    );
-
-    beforeAll(() => server.listen());
-
-    afterAll(() => server.close());
-
-    const setup = async () => {
-      render(SignUpPage);
-      const usernameInput = screen.queryByLabelText("Username");
-      const emailInput = screen.queryByLabelText("E-mail");
-      const passwordInput = screen.queryByLabelText("Password");
-      const passwordRepeatInput = screen.queryByLabelText("Password Repeat");
-      button = screen.queryByRole("button", { name: "Sign Up" });
-      await userEvent.type(usernameInput, "user1");
-      await userEvent.type(emailInput, "user1@mail.com");
-      await userEvent.type(passwordInput, "P4ssword");
-      await userEvent.type(passwordRepeatInput, "P4ssword");
-    };
-
     it("enables the button when the password and password repeat fields have same values", async () => {
       await setup();
       expect(button).toBeEnabled;
@@ -222,5 +222,32 @@ describe("Sign Up Page", () => {
       screen.findByText("Username cannot be null");
       expect(button).toBeEnabled;
     });
+
+    it("displays mismatch message for password repeat input", async () => {
+      await setup();
+
+      await userEvent.type(passwordInput, "P4ss1");
+      await userEvent.type(passwordRepeatInput, "P4ss2");
+      const text = screen.findByText("Password mismatch");
+      expect(text).toBeInTheDocument;
+    });
+
+    fit.each`
+      field         | message                      | label
+      ${"username"} | ${"Username cannot be null"} | ${"Username"}
+      ${"email"}    | ${"E-mail cannot be null"}   | ${"E-mail"}
+      ${"password"} | ${"Password cannot be null"} | ${"Password"}
+    `(
+      "clears validation error after $field field is updated",
+      async ({ field, message, label }) => {
+        server.use(generateValidationError(field, message));
+        await setup();
+        await userEvent.click(button);
+        const text = screen.findByText(message);
+        const input = screen.queryByLabelText(label);
+        await userEvent.type(input, "updated");
+        expect(text).not.toBeInTheDocument;
+      }
+    );
   });
 });

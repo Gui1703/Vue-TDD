@@ -39,7 +39,21 @@ export default {
         ? this.password !== this.passwordRepeat
         : true;
     },
-  }
+    hasPasswordMismatch() {
+      return this.password !== this.passwordRepeat
+    }
+  },
+  watch: {
+    username() {
+      delete this.errors.username
+    },
+    email() {
+      delete this.errors.email
+    },
+    password() {
+      delete this.errors.password
+    },
+  },
 };
 </script>
 
@@ -51,45 +65,15 @@ export default {
       </div>
 
       <div class="card-body">
-        <InputComponent
-          label="Username"
-          id="username"
-          type="text"
-          :help="errors.username"
-          v-model="username"
-        />
-        <InputComponent
-          label="E-mail"
-          id="email"
-          type="email"
-          :help="errors.email"
-          v-model="email"
-        />
-        <InputComponent
-          label="Password"
-          id="password"
-          type="password"
-          :help="errors.password"
-          v-model="password"
-        />
-        <InputComponent
-          label="Password Repeat"
-          id="password-repeat"
-          type="password"
-          v-model="passwordRepeat"
-        />
+        <InputComponent label="Username" id="username" type="text" :help="errors.username" v-model="username" />
+        <InputComponent label="E-mail" id="email" type="email" :help="errors.email" v-model="email" />
+        <InputComponent label="Password" id="password" type="password" :help="errors.password" v-model="password" />
+        <InputComponent label="Password Repeat" id="password-repeat" type="password" v-model="passwordRepeat"
+          :help="hasPasswordMismatch ? 'Password mismatch' : ''" />
 
         <div class="text-center">
-          <button
-            class="btn btn-primary"
-            :disabled="isDisabled || apiProgress"
-            @click.prevent="submit"
-          >
-            <span
-              v-if="apiProgress"
-              class="spinner-border spinner-border-sm"
-              role="status"
-            />
+          <button class="btn btn-primary" :disabled="isDisabled || apiProgress" @click.prevent="submit">
+            <span v-if="apiProgress" class="spinner-border spinner-border-sm" role="status" />
             Sign Up
           </button>
         </div>
