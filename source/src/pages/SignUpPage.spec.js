@@ -1,5 +1,6 @@
 import SignUpPage from "./SignUpPage.vue";
 import userEvent from "@testing-library/user-event";
+import i18n from "../locales/i18n";
 import { render, screen, waitFor } from "@testing-library/vue";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
@@ -28,7 +29,9 @@ beforeAll(() => server.listen());
 afterAll(() => server.close());
 
 const setup = async () => {
-  render(SignUpPage);
+  render(SignUpPage, {
+    global: { plugins: [i18n] },
+  });
   usernameInput = screen.queryByLabelText("Username");
   const emailInput = screen.queryByLabelText("E-mail");
   passwordInput = screen.queryByLabelText("Password");
@@ -42,55 +45,55 @@ const setup = async () => {
 
 describe("Sign Up Page", () => {
   describe("Layout", () => {
-    it("has Sign Up Header", () => {
-      render(SignUpPage);
+    it("has Sign Up Header", async () => {
+      await setup();
       const header = screen.queryByRole("heading", { name: "Sign Up" });
       expect(header).not.toBeNull();
     });
 
-    it("has username input", () => {
-      render(SignUpPage);
+    it("has username input", async () => {
+      await setup();
       const input = screen.queryByLabelText("Username");
       expect(input).not.toBeNull();
     });
 
-    it("has email input", () => {
-      render(SignUpPage);
+    it("has email input", async () => {
+      await setup();
       const input = screen.queryByLabelText("E-mail");
       expect(input).not.toBeNull();
     });
 
-    it("has password input", () => {
-      render(SignUpPage);
+    it("has password input", async () => {
+      await setup();
       const input = screen.queryByLabelText("Password");
       expect(input).not.toBeNull();
     });
 
-    it("has password type for password input", () => {
-      render(SignUpPage);
+    it("has password type for password input", async () => {
+      await setup();
       const input = screen.queryByLabelText("Password");
       expect(input.type).toBe("password");
     });
 
-    it("has password repeat input", () => {
-      render(SignUpPage);
+    it("has password repeat input", async () => {
+      await setup();
       const input = screen.queryByLabelText("Password Repeat");
       expect(input).not.toBeNull();
     });
 
-    it("has password type for password repeat input", () => {
-      render(SignUpPage);
+    it("has password type for password repeat input", async () => {
+      await setup();
       const input = screen.queryByLabelText("Password Repeat");
       expect(input.type).toBe("password");
     });
 
-    it("has Sign Up Button", () => {
-      render(SignUpPage);
+    it("has Sign Up Button", async () => {
+      await setup();
       expect(button).not.toBeNull();
     });
 
-    it("disables the button initially", () => {
-      render(SignUpPage);
+    it("disables the button initially", async () => {
+      await setup();
       expect(button).toBeDisabled;
     });
   });

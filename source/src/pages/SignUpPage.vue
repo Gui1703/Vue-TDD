@@ -61,20 +61,51 @@ export default {
   <div class="col-lg-6 offset-lg-3 col-md-8 offset-md-2">
     <form class="card mt-5" data-testid="form-sign-up" v-if="!signUpSuccess">
       <div class="card-header">
-        <h1 class="text-center">Sign Up</h1>
+        <h1 class="text-center">{{ $t("signUp") }}</h1>
       </div>
 
       <div class="card-body">
-        <InputComponent label="Username" id="username" type="text" :help="errors.username" v-model="username" />
-        <InputComponent label="E-mail" id="email" type="email" :help="errors.email" v-model="email" />
-        <InputComponent label="Password" id="password" type="password" :help="errors.password" v-model="password" />
-        <InputComponent label="Password Repeat" id="password-repeat" type="password" v-model="passwordRepeat"
-          :help="hasPasswordMismatch ? 'Password mismatch' : ''" />
+        <InputComponent
+          :label="$t('username')"
+          id="username"
+          type="text"
+          :help="errors.username"
+          v-model="username"
+        />
+        <InputComponent
+          :label="$t('email')"
+          id="email"
+          type="email"
+          :help="errors.email"
+          v-model="email"
+        />
+        <InputComponent
+          :label="$t('password')"
+          id="password"
+          type="password"
+          :help="errors.password"
+          v-model="password"
+        />
+        <InputComponent
+          :label="$t('passwordRepeat')"
+          id="password-repeat"
+          type="password"
+          v-model="passwordRepeat"
+          :help="hasPasswordMismatch ? 'Password mismatch' : ''"
+        />
 
         <div class="text-center">
-          <button class="btn btn-primary" :disabled="isDisabled || apiProgress" @click.prevent="submit">
-            <span v-if="apiProgress" class="spinner-border spinner-border-sm" role="status" />
-            Sign Up
+          <button
+            class="btn btn-primary"
+            :disabled="isDisabled || apiProgress"
+            @click.prevent="submit"
+          >
+            <span
+              v-if="apiProgress"
+              class="spinner-border spinner-border-sm"
+              role="status"
+            />
+            {{ $t("signUp") }}
           </button>
         </div>
       </div>
