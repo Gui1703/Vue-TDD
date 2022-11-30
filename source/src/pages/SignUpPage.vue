@@ -115,4 +115,6 @@ export default {
       Please check your e-mail to activate your account
     </div>
   </div>
+
+  <span title="Portuguese" @click="$i18n.locale = 'pt'">PT</span>
 </template>

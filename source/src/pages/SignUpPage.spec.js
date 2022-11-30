@@ -1,159 +1,147 @@
 import SignUpPage from "./SignUpPage.vue";
 import userEvent from "@testing-library/user-event";
-import i18n from "../locales/i18n";
+import {i18n} from "../locales/i18n";
+import en from "../locales/en.json";
+import pt from "../locales/pt.json";
 import { render, screen, waitFor } from "@testing-library/vue";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
 
-let button, passwordInput, passwordRepeatInput, usernameInput;
-
-const generateValidationError = (field, message) => {
-  return rest.post("/api/1.0/users", (req, res, ctx) => {
-    return res(
-      ctx.status(400),
-      ctx.json({ validationErrors: { [field]: message } })
-    );
-  });
-};
-
 let requestBody;
+let counter = 0;
+let button, passwordInput, passwordRepeatInput, usernameInput, emailInput;
 const server = setupServer(
   rest.post("/api/1.0/users", (req, res, ctx) => {
     requestBody = req.body;
+    counter += 1;
     return res(ctx.status(200));
   })
 );
 
 beforeAll(() => server.listen());
 
+beforeEach(() => {
+  counter = 0;
+  server.resetHandlers();
+});
+
 afterAll(() => server.close());
 
-const setup = async () => {
-  render(SignUpPage, {
-    global: { plugins: [i18n] },
-  });
-  usernameInput = screen.queryByLabelText("Username");
-  const emailInput = screen.queryByLabelText("E-mail");
-  passwordInput = screen.queryByLabelText("Password");
-  passwordRepeatInput = screen.queryByLabelText("Password Repeat");
-  button = screen.queryByRole("button", { name: "Sign Up" });
-  await userEvent.type(usernameInput, "user1");
-  await userEvent.type(emailInput, "user1@mail.com");
-  await userEvent.type(passwordInput, "P4ssword");
-  await userEvent.type(passwordRepeatInput, "P4ssword");
-};
-
-describe("Sign Up Page", () => {
+describe("SignUpPage", () => {
   describe("Layout", () => {
-    it("has Sign Up Header", async () => {
-      await setup();
+    const setup = () => {
+      render(SignUpPage, {
+        global: {
+          plugins: [i18n],
+        },
+      });
+    };
+
+    it("has Sign Up Header", () => {
+      setup();
       const header = screen.queryByRole("heading", { name: "Sign Up" });
-      expect(header).not.toBeNull();
+      expect(header).toBeInTheDocument;
     });
 
-    it("has username input", async () => {
-      await setup();
-      const input = screen.queryByLabelText("Username");
-      expect(input).not.toBeNull();
+    it.each`
+      label
+      ${"Username"}
+      ${"E-mail"}
+      ${"Password"}
+    `("has $label input", async ({ label }) => {
+      setup();
+      const input = screen.queryByLabelText(label);
+      expect(input).toBeInTheDocument;
     });
 
-    it("has email input", async () => {
-      await setup();
-      const input = screen.queryByLabelText("E-mail");
-      expect(input).not.toBeNull();
-    });
-
-    it("has password input", async () => {
-      await setup();
-      const input = screen.queryByLabelText("Password");
-      expect(input).not.toBeNull();
-    });
-
-    it("has password type for password input", async () => {
-      await setup();
+    it("has password type for password input", () => {
+      setup();
       const input = screen.queryByLabelText("Password");
       expect(input.type).toBe("password");
     });
-
-    it("has password repeat input", async () => {
-      await setup();
+    it("has password repeat input", () => {
+      setup();
       const input = screen.queryByLabelText("Password Repeat");
-      expect(input).not.toBeNull();
+      expect(input).toBeInTheDocument;
     });
-
-    it("has password type for password repeat input", async () => {
-      await setup();
+    it("has password repeat type for password input", () => {
+      setup();
       const input = screen.queryByLabelText("Password Repeat");
       expect(input.type).toBe("password");
     });
-
-    it("has Sign Up Button", async () => {
-      await setup();
-      expect(button).not.toBeNull();
+    it("has Sign Up Button", () => {
+      setup();
+      const button = screen.queryByRole("button", { name: "Sign Up" });
+      expect(button).toBeInTheDocument;
     });
-
-    it("disables the button initially", async () => {
-      await setup();
+    it("disable the buttons initially", () => {
+      setup();
+      const button = screen.queryByRole("button", { name: "Sign Up" });
       expect(button).toBeDisabled;
     });
   });
+  describe("Interaction", () => {
+    const setup = async () => {
+      render(SignUpPage, {
+        global: {
+          plugins: [i18n],
+        },
+      });
+      usernameInput = screen.queryByLabelText("Username");
+      emailInput = screen.queryByLabelText("E-mail");
+      passwordInput = screen.queryByLabelText("Password");
+      passwordRepeatInput = screen.queryByLabelText("Password Repeat");
+      button = screen.queryByRole("button", { name: "Sign Up" });
+      await userEvent.type(usernameInput, "user1");
+      await userEvent.type(emailInput, "user1@mail.com");
+      await userEvent.type(passwordInput, "P4ssword");
+      await userEvent.type(passwordRepeatInput, "P4ssword");
+    };
 
-  describe("Interactions", () => {
-    it("enables the button when the password and password repeat fields have same values", async () => {
+    const generateValidationError = (field, message) => {
+      return rest.post("/api/1.0/users", (req, res, ctx) => {
+        return res(
+          ctx.status(400),
+          ctx.json({
+            validationErrors: {
+              [field]: message,
+            },
+          })
+        );
+      });
+    };
+
+    it("enables the button when the password and password resets matchs", async () => {
       await setup();
       expect(button).toBeEnabled;
     });
-
-    it("sends username, email and password to backend after clicking the button", async () => {
-      server.listen();
+    it("send username, email and password to backend after clicking the button", async () => {
       await setup();
       await userEvent.click(button);
       await screen.findByText(
         "Please check your e-mail to activate your account"
       );
-      await server.close();
       expect(requestBody).toEqual({
         username: "user1",
         email: "user1@mail.com",
         password: "P4ssword",
       });
     });
-
-    it("does not allow clicking to the button when there is an ongoing api call", async () => {
-      let counter = 0;
-      const server = setupServer(
-        rest.post("/api/1.0/users", (req, res, ctx) => {
-          counter += 1;
-          return res(ctx.status(200));
-        })
-      );
-      server.listen();
+    it("does not allow clickng to the button when there is an ongoing api call", async () => {
       await setup();
       await userEvent.click(button);
-      await server.close();
+      // await userEvent.click(button);
+      await screen.findByText(
+        "Please check your e-mail to activate your account"
+      );
       expect(counter).toBe(1);
     });
-
-    it("displays spinner while the api request in progress", async () => {
-      const server = setupServer(
-        rest.post("/api/1.0/users", (req, res, ctx) => {
-          return res(ctx.status(200));
-        })
-      );
-      server.listen();
-      await setup();
-      await userEvent.click(button);
-      const spinner = screen.queryByRole("status");
-      expect(spinner).toBeInTheDocument;
-    });
-
     it("does not display spinner when there is no api request", async () => {
       await setup();
       const spinner = screen.queryByRole("status");
       expect(spinner).not.toBeInTheDocument;
     });
-
-    it("displays account activation information after successful sign up request", async () => {
+    it("display account activation information after successful sign up request", async () => {
       await setup();
       await userEvent.click(button);
       const text = await screen.findByText(
@@ -161,7 +149,6 @@ describe("Sign Up Page", () => {
       );
       expect(text).toBeInTheDocument;
     });
-
     it("does not display account activation message before sign up request", async () => {
       await setup();
       const text = await screen.queryByText(
@@ -169,29 +156,27 @@ describe("Sign Up Page", () => {
       );
       expect(text).not.toBeInTheDocument;
     });
-
-    it("does not displays account activation information after failing sign up request", async () => {
-      const server = setupServer(
+    it("does not display account activavtion information after failing sign up request", async () => {
+      server.use(
         rest.post("/api/1.0/users", (req, res, ctx) => {
           return res(ctx.status(400));
         })
       );
       await setup();
       await userEvent.click(button);
-      await server.close();
       const text = screen.queryByText(
         "Please check your e-mail to activate your account"
       );
       expect(text).not.toBeInTheDocument;
     });
-
-    it("hides sign up form after successful sign up request", async () => {
+    it("hides sign up from after successful sign up request", async () => {
       await setup();
       const form = screen.queryByTestId("form-sign-up");
       await userEvent.click(button);
-      await waitFor(() => expect(form).not.toBeInTheDocument);
+      await waitFor(() => {
+        expect(form).not.toBeInTheDocument;
+      });
     });
-
     it.each`
       field         | message
       ${"username"} | ${"Username cannot be null"}
@@ -201,56 +186,84 @@ describe("Sign Up Page", () => {
       server.use(generateValidationError(field, message));
       await setup();
       await userEvent.click(button);
-      const text = screen.findByText(message);
+      const text = await screen.findByText(message);
       expect(text).toBeInTheDocument;
     });
-
     it("hides spinner after error response received", async () => {
       server.use(
         generateValidationError("username", "Username cannot be null")
       );
       await setup();
       await userEvent.click(button);
-      screen.findByText("Username cannot be null");
+      await screen.findByText("Username cannot be null");
       const spinner = screen.queryByRole("status");
       expect(spinner).not.toBeInTheDocument;
     });
-
     it("enables the button after error response received", async () => {
       server.use(
         generateValidationError("username", "Username cannot be null")
       );
       await setup();
       await userEvent.click(button);
-      screen.findByText("Username cannot be null");
+      await screen.findByText("Username cannot be null");
       expect(button).toBeEnabled;
     });
-
-    it("displays mismatch message for password repeat input", async () => {
+    it("display mismatch message for password repeat input", async () => {
       await setup();
-
       await userEvent.type(passwordInput, "P4ss1");
       await userEvent.type(passwordRepeatInput, "P4ss2");
-      const text = screen.findByText("Password mismatch");
+      const text = await screen.findByText("Password mismatch");
       expect(text).toBeInTheDocument;
     });
-
-    fit.each`
+    it.each`
       field         | message                      | label
       ${"username"} | ${"Username cannot be null"} | ${"Username"}
       ${"email"}    | ${"E-mail cannot be null"}   | ${"E-mail"}
       ${"password"} | ${"Password cannot be null"} | ${"Password"}
     `(
-      "clears validation error after $field field is updated",
+      "clear validation error after field $field is updated",
       async ({ field, message, label }) => {
         server.use(generateValidationError(field, message));
         await setup();
         await userEvent.click(button);
-        const text = screen.findByText(message);
+        const text = await screen.findByText(message);
         const input = screen.queryByLabelText(label);
         await userEvent.type(input, "updated");
         expect(text).not.toBeInTheDocument;
       }
     );
+  });
+
+  describe("internationalization", () => {
+    const setup = async () => {
+      render(SignUpPage, {
+        global: {
+          plugins: [i18n],
+        },
+      });
+    };
+
+    it("initially displays all text in English", async () => {
+      await setup();
+      expect(screen.queryByRole("heading", { name: en })).toBeInTheDocument;
+      expect(screen.queryByRole("button", { name: en })).toBeInTheDocument;
+      expect(screen.queryByLabelText(en.username)).toBeInTheDocument;
+      expect(screen.queryByLabelText(en.email)).toBeInTheDocument;
+      expect(screen.queryByLabelText(en.password)).toBeInTheDocument;
+      expect(screen.queryByLabelText(en.passwordRepeat)).toBeInTheDocument;
+    });
+    it("displays all text in Turkish after selecting that language", async () => {
+      await setup();
+
+      const portuguese = screen.queryByTitle("Portuguese");
+      await userEvent.click(portuguese);
+
+      expect(screen.queryByRole("heading", { name: pt })).toBeInTheDocument;
+      expect(screen.queryByRole("button", { name: pt })).toBeInTheDocument;
+      expect(screen.queryByLabelText(pt.username)).toBeInTheDocument;
+      expect(screen.queryByLabelText(pt.email)).toBeInTheDocument;
+      expect(screen.queryByLabelText(pt.password)).toBeInTheDocument;
+      expect(screen.queryByLabelText(pt.passwordRepeat)).toBeInTheDocument;
+    });
   });
 });
