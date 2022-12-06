@@ -10,11 +10,13 @@ import { rest } from "msw";
 
 let requestBody;
 let counter = 0;
+let acceptLanguageHeader;
 let button, passwordInput, passwordRepeatInput, usernameInput, emailInput;
 const server = setupServer(
   rest.post("/api/1.0/users", (req, res, ctx) => {
     requestBody = req.body;
     counter += 1;
+    acceptLanguageHeader = req.headers.get("Accept-Language");
     return res(ctx.status(200));
   })
 );
@@ -236,7 +238,13 @@ describe("SignUpPage", () => {
   });
 
   describe("internationalization", () => {
-    let portugueseLanguage, englishLanguage, password, passwordRepeat;
+    let portugueseLanguage,
+      englishLanguage,
+      username,
+      email,
+      password,
+      passwordRepeat,
+      button;
 
     const setup = async () => {
       const app = {
@@ -258,8 +266,11 @@ describe("SignUpPage", () => {
 
       portugueseLanguage = screen.queryByTitle("Portuguese");
       englishLanguage = screen.queryByTitle("English");
-      password = expect(screen.queryByLabelText(en.password));
-      passwordRepeat = expect(screen.queryByLabelText(en.passwordRepeat));
+      username = screen.queryByLabelText(en.username);
+      email = screen.queryByLabelText(en.email);
+      password = screen.queryByLabelText(en.password);
+      passwordRepeat = screen.queryByLabelText(en.passwordRepeat);
+      button = screen.queryByRole("button", { name: en.signUp });
     };
 
     afterEach(() => {
@@ -316,6 +327,47 @@ describe("SignUpPage", () => {
       await userEvent.type(passwordRepeat, "N3wP4ss");
       const validation = screen.queryByText(pt.passwordMismatchValidation);
       expect(validation).toBeInTheDocument;
+    });
+
+    it("sends accept language having en to backend for sign up request", async () => {
+      setup();
+
+      await userEvent.type(username, "user1");
+      await userEvent.type(email, "user1@mail.com");
+      await userEvent.type(password, "P4ssword");
+      await userEvent.type(passwordRepeat, "P4ssword");
+      await userEvent.click(button);
+      await screen.findByText(
+        "Please check your e-mail to activate your account"
+      );
+      expect(acceptLanguageHeader).toBe("en");
+    });
+
+    it("sends accept language having pt after that language is selected", async () => {
+      setup();
+
+      await userEvent.click(portugueseLanguage);
+      await userEvent.type(username, "user1");
+      await userEvent.type(email, "user1@mail.com");
+      await userEvent.type(password, "P4ssword");
+      await userEvent.type(passwordRepeat, "P4ssword");
+      await userEvent.click(button);
+      await screen.findByText(pt.accountActivationNotification);
+      expect(acceptLanguageHeader).toBe("en");
+    });
+
+    it("display account activation information in Portuguese after selecting that language", async () => {
+      setup();
+      await userEvent.click(portugueseLanguage);
+      await userEvent.type(username, "user1");
+      await userEvent.type(email, "email@mail.com");
+      await userEvent.type(password, "P4ssword");
+      await userEvent.type(passwordRepeat, "P4ssword");
+      await userEvent.click(button);
+      const accountActivation = await screen.findByText(
+        pt.accountActivationNotification
+      );
+      expect(accountActivation).toBeInTheDocument;
     });
   });
 });

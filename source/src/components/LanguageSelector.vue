@@ -11,6 +11,7 @@
     height="18"
     alt="Brazil"
     title="Portuguese"
+    id="Portuguese"
     @click="$i18n.locale = 'pt'"
   />
   <img
@@ -23,6 +24,7 @@
     height="18"
     alt="United States"
     title="English"
+    id="English"
     @click="$i18n.locale = 'en'"
   />
 </template>

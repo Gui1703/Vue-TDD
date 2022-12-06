@@ -23,6 +23,8 @@ export default {
         username: this.username,
         email: this.email,
         password: this.password,
+      }, {
+        headers: { "Accept-Language": this.$i18n.locale }
       })
         .then(() => this.signUpSuccess = true)
         .catch((error) => {
@@ -112,7 +114,7 @@ export default {
     </form>
 
     <div class="alert alert-success mt-3" v-else>
-      Please check your e-mail to activate your account
+      {{ $t("accountActivationNotification") }}
     </div>
   </div>
 </template>
