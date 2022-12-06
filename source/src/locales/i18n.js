@@ -6,4 +6,3 @@ import pt from "./pt.json";
   locale: "en",
   messages: { en, pt },
 });
-// export default i18n

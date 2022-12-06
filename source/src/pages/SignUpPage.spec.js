@@ -1,4 +1,5 @@
 import SignUpPage from "./SignUpPage.vue";
+import LanguageSelector from "../components/LanguageSelector.vue";
 import userEvent from "@testing-library/user-event";
 import en from "../locales/en.json";
 import pt from "../locales/pt.json";
@@ -235,13 +236,35 @@ describe("SignUpPage", () => {
   });
 
   describe("internationalization", () => {
+    let portugueseLanguage, englishLanguage, password, passwordRepeat;
+
     const setup = async () => {
-      render(SignUpPage, {
+      const app = {
+        components: {
+          SignUpPage,
+          LanguageSelector,
+        },
+        template: `
+        <SignUpPage />
+        <LanguageSelector />
+        `,
+      };
+
+      render(app, {
         global: {
           plugins: [i18n],
         },
       });
+
+      portugueseLanguage = screen.queryByTitle("Portuguese");
+      englishLanguage = screen.queryByTitle("English");
+      password = expect(screen.queryByLabelText(en.password));
+      passwordRepeat = expect(screen.queryByLabelText(en.passwordRepeat));
     };
+
+    afterEach(() => {
+      i18n.global.locale = "en";
+    });
 
     it("initially displays all text in English", async () => {
       await setup();
@@ -254,11 +277,11 @@ describe("SignUpPage", () => {
       expect(screen.queryByLabelText(en.password)).toBeInTheDocument;
       expect(screen.queryByLabelText(en.passwordRepeat)).toBeInTheDocument;
     });
+
     it("displays all text in Portuguese after selecting that language", async () => {
       await setup();
 
-      const portuguese = screen.queryByTitle("Portuguese");
-      await userEvent.click(portuguese);
+      await userEvent.click(portugueseLanguage);
 
       expect(screen.queryByRole("heading", { name: pt.signUp }))
         .toBeInTheDocument;
@@ -269,14 +292,12 @@ describe("SignUpPage", () => {
       expect(screen.queryByLabelText(pt.password)).toBeInTheDocument;
       expect(screen.queryByLabelText(pt.passwordRepeat)).toBeInTheDocument;
     });
+
     it("displays all text in English after page is translated to Portuguese", async () => {
       await setup();
 
-      const portuguese = screen.queryByTitle("Portuguese");
-      await userEvent.click(portuguese);
-
-      const english = screen.queryByTitle("English");
-      await userEvent.click(english);
+      await userEvent.click(portugueseLanguage);
+      await userEvent.click(englishLanguage);
 
       expect(screen.queryByRole("heading", { name: en.signUp }))
         .toBeInTheDocument;
@@ -286,6 +307,15 @@ describe("SignUpPage", () => {
       expect(screen.queryByLabelText(en.email)).toBeInTheDocument;
       expect(screen.queryByLabelText(en.password)).toBeInTheDocument;
       expect(screen.queryByLabelText(en.passwordRepeat)).toBeInTheDocument;
+    });
+
+    it("displays password mismatch validation is Portuguese", async () => {
+      setup();
+      await userEvent.click(portugueseLanguage);
+      await userEvent.type(password, "P4ssword");
+      await userEvent.type(passwordRepeat, "N3wP4ss");
+      const validation = screen.queryByText(pt.passwordMismatchValidation);
+      expect(validation).toBeInTheDocument;
     });
   });
 });
