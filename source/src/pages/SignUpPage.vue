@@ -1,6 +1,6 @@
 <script lang="js">
 import InputComponent from '../components/InputComponent.vue';
-import axios from 'axios'
+import { signUp } from '../api/apiCalls'
 
 export default {
   name: "SignUpPage",
@@ -17,22 +17,22 @@ export default {
     };
   },
   methods: {
-    submit() {
+    async submit() {
       this.apiProgress = true;
-      axios.post("/api/1.0/users", {
-        username: this.username,
-        email: this.email,
-        password: this.password,
-      }, {
-        headers: { "Accept-Language": this.$i18n.locale }
-      })
-        .then(() => this.signUpSuccess = true)
-        .catch((error) => {
-          if (error.response.status === 400) {
-            this.errors = error.response.data.validationErrors;
-          }
+      try {
+        await signUp({
+          username: this.username,
+          email: this.email,
+          password: this.password,
         });
-      this.apiProgress = false;
+        this.signUpSuccess = true;
+      } catch (error) {
+        console.log(error)
+        if (error.response.status === 400) {
+          this.errors = error.response.data.validationErrors;
+        }
+        this.apiProgress = false;
+      }
     },
   },
   computed: {
@@ -46,15 +46,9 @@ export default {
     }
   },
   watch: {
-    username() {
-      delete this.errors.username
-    },
-    email() {
-      delete this.errors.email
-    },
-    password() {
-      delete this.errors.password
-    },
+    username() { delete this.errors.username },
+    email() { delete this.errors.email },
+    password() { delete this.errors.password },
   },
 };
 </script>

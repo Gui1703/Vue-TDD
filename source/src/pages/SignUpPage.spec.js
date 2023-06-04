@@ -130,7 +130,7 @@ describe("SignUpPage", () => {
         password: "P4ssword",
       });
     });
-    it("does not allow clickng to the button when there is an ongoing api call", async () => {
+    it("does not allow clicking to the button when there is an ongoing api call", async () => {
       await setup();
       await userEvent.click(button);
       // await userEvent.click(button);
