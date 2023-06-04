@@ -2,6 +2,11 @@ import { render, screen } from "@testing-library/vue";
 import App from "./App.vue";
 import { i18n } from "./locales/i18n";
 
+const setup = (path) => {
+  window.history.pushState({}, "", path);
+  render(App, { global: { plugins: [i18n] } });
+};
+
 describe("Routing", () => {
   it.each`
     path                | pageTestId
@@ -13,8 +18,7 @@ describe("Routing", () => {
     ${"/activate/1234"} | ${"activation-page"}
     ${"/activate/5678"} | ${"activation-page"}
   `("displays $pageTestId when path is $path", async ({ path, pageTestId }) => {
-    window.history.pushState({}, "", path);
-
+    setup(path);
     const page = screen.queryByTestId(pageTestId);
     expect(page).toBeInTheDocument;
   });
@@ -44,8 +48,7 @@ describe("Routing", () => {
   `(
     "does not display $pageTestId when path is $path",
     async ({ path, pageTestId }) => {
-      window.history.pushState({}, "", path);
-
+      setup(path);
       const page = screen.queryByTestId(pageTestId);
       expect(page).not.toBeInTheDocument;
     }
