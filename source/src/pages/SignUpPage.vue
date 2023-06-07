@@ -1,10 +1,11 @@
 <script lang="js">
 import InputComponent from '../components/InputComponent.vue';
 import { signUp } from '../api/apiCalls'
+import Spinner from "@/components/Spinner.vue";
 
 export default {
   name: "SignUpPage",
-  components: { InputComponent },
+  components: {Spinner, InputComponent },
   data() {
     return {
       apiProgress: false,
@@ -99,11 +100,7 @@ export default {
             :disabled="isDisabled || apiProgress"
             @click.prevent="submit"
           >
-            <span
-              v-if="apiProgress"
-              class="spinner-border spinner-border-sm"
-              role="status"
-            />
+            <Spinner v-if="apiProgress" />
             {{ $t("signUp") }}
           </button>
         </div>

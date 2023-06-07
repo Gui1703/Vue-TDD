@@ -1,6 +1,8 @@
 <script>
 import { activate } from "../api/apiCalls";
+import Spinner from "@/components/Spinner.vue";
 export default {
+  components: { Spinner },
   data() {
     return {
       success: false,
@@ -29,7 +31,7 @@ export default {
     </div>
     <div class="alert alert-danger mt-3" v-if="fail">Activation failure</div>
 
-    <span v-if="apiProgress" class="spinner-border" role="status" />
+    <Spinner v-if="apiProgress" size="normal" />
   </div>
 </template>
 
