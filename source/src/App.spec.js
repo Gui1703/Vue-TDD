@@ -2,10 +2,13 @@ import { render, screen } from "@testing-library/vue";
 import App from "./App.vue";
 import { i18n } from "./locales/i18n";
 import userEvent from "@testing-library/user-event";
+import router from "./routes/router";
 
-const setup = (path) => {
+const setup = async (path) => {
   window.history.pushState({}, "", path);
-  render(App, { global: { plugins: [i18n] } });
+  render(App, { global: { plugins: [i18n, router] } });
+  await router.replace(path);
+  await router.isReady();
 };
 
 describe("Routing", () => {
@@ -19,7 +22,7 @@ describe("Routing", () => {
     ${"/activate/1234"} | ${"activation-page"}
     ${"/activate/5678"} | ${"activation-page"}
   `("displays $pageTestId when path is $path", async ({ path, pageTestId }) => {
-    setup(path);
+    await setup(path);
     const page = screen.queryByTestId(pageTestId);
     expect(page).toBeInTheDocument;
   });
@@ -49,7 +52,7 @@ describe("Routing", () => {
   `(
     "does not display $pageTestId when path is $path",
     async ({ path, pageTestId }) => {
-      setup(path);
+      await setup(path);
       const page = screen.queryByTestId(pageTestId);
       expect(page).not.toBeInTheDocument;
     }
@@ -60,8 +63,8 @@ describe("Routing", () => {
     ${"Home"}
     ${"Sign Up"}
     ${"Login"}
-  `("has link to $targetPage on NavBar", ({ targetPage }) => {
-    setup("/");
+  `("has link to $targetPage on NavBar", async ({ targetPage }) => {
+    await setup("/");
     const link = screen.queryByRole("link", { name: targetPage });
     expect(link).toBeInTheDocument;
   });
@@ -74,19 +77,19 @@ describe("Routing", () => {
   `(
     "displays $visiblePage after clicking $clickingTo link",
     async ({ initialPath, clickingTo, visiblePage }) => {
-      setup(initialPath);
+      await setup(initialPath);
       const link = screen.queryByRole("link", { name: clickingTo });
       await userEvent.click(link);
-      const page = await screen.queryByTestId(visiblePage);
+      const page = await screen.findByTestId(visiblePage);
       expect(page).toBeInTheDocument;
     }
   );
 
   it("displays home page when clicking brand logo", async () => {
-    setup("login");
+    await setup("login");
     const image = screen.queryByAltText("Hoaxify Logo");
     await userEvent.click(image);
-    const page = screen.queryByTestId("home-page");
+    const page = await screen.findByTestId("home-page");
     expect(page).toBeInTheDocument;
   });
 });
