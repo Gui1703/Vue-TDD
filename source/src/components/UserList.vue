@@ -9,6 +9,12 @@ export default {
     const { data } = await loadUsers();
     this.page = data;
   },
+  methods: {
+    async loadData(pageIndex) {
+      const { data } = await loadUsers(pageIndex);
+      this.page = data;
+    },
+  },
 };
 </script>
 
@@ -27,6 +33,23 @@ export default {
         {{ user.username }}
       </li>
     </ul>
+
+    <div class="card-footer">
+      <button
+        class="btn btn-outline-secondary btn-sm"
+        @click="loadData(this.page.page - 1)"
+        v-if="page.page > 0"
+      >
+        &lt; prev
+      </button>
+      <button
+        class="btn btn-outline-secondary btn-sm float-end"
+        @click="loadData(this.page.page + 1)"
+        v-if="page.totalPages > page.page + 1"
+      >
+        next &gt;
+      </button>
+    </div>
   </div>
 </template>
 
