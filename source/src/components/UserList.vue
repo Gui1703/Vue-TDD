@@ -1,20 +1,28 @@
 <script>
 import { loadUsers } from "../api/apiCalls";
 import UserListItem from "../components/UserListItem.vue";
+import Spinner from "../components/Spinner.vue";
 
 export default {
-  components: { UserListItem },
+  components: { Spinner, UserListItem },
   data() {
-    return { page: { content: [], page: 0, size: 0, totalPages: 0 } };
+    return {
+      page: { content: [], page: 0, size: 0, totalPages: 0 },
+      progress: false,
+    };
   },
   async mounted() {
+    this.progress = true;
     const { data } = await loadUsers();
     this.page = data;
+    this.progress = false;
   },
   methods: {
     async loadData(pageIndex) {
+      this.progress = true;
       const { data } = await loadUsers(pageIndex);
       this.page = data;
+      this.progress = false;
     },
   },
 };
@@ -37,21 +45,22 @@ export default {
       </li>
     </ul>
 
-    <div class="card-footer">
+    <div class="card-footer text-center">
       <button
-        class="btn btn-outline-secondary btn-sm"
+        class="btn btn-outline-secondary btn-sm float-start"
         @click="loadData(this.page.page - 1)"
-        v-if="page.page > 0"
+        v-show="page.page > 0 && !this.progress"
       >
         &lt; prev
       </button>
       <button
         class="btn btn-outline-secondary btn-sm float-end"
         @click="loadData(this.page.page + 1)"
-        v-if="page.totalPages > page.page + 1"
+        v-show="page.totalPages > page.page + 1 && !this.progress"
       >
         next &gt;
       </button>
+      <Spinner v-show="this.progress" />
     </div>
   </div>
 </template>
