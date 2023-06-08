@@ -1,7 +1,7 @@
 <script lang="js">
 import InputComponent from '../components/InputComponent.vue';
 import { signUp } from '../api/apiCalls'
-import Spinner from "@/components/Spinner.vue";
+import Spinner from "../components/Spinner.vue";
 
 export default {
   name: "SignUpPage",

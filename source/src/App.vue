@@ -11,7 +11,7 @@ export default {
 </script>
 
 <template>
-  <div class="shadow-sm bg-light">
+  <div class="shadow-sm bg-light mb-3">
     <nav class="navbar navbar-expand navbar-light container">
       <div class="container-fluid">
         <router-link class="navbar-brand" to="/" title="Home">

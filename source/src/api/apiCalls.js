@@ -10,3 +10,7 @@ export const signUp = async (body) => {
 export const activate = async (token) => {
   return await axios.post(`/api/1.0/token/${token}`);
 };
+
+export const loadUsers = async () => {
+  return await axios.get("/api/1.0/users");
+};

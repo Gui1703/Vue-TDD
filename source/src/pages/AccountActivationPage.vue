@@ -1,6 +1,6 @@
 <script>
 import { activate } from "../api/apiCalls";
-import Spinner from "@/components/Spinner.vue";
+import Spinner from "../components/Spinner.vue";
 export default {
   components: { Spinner },
   data() {
@@ -34,5 +34,3 @@ export default {
     <Spinner v-if="apiProgress" size="normal" />
   </div>
 </template>
-
-<style scoped></style>

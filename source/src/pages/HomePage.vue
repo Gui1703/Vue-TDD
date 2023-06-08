@@ -1,10 +1,14 @@
 <script>
-export default {};
+import UserList from "../components/UserList.vue";
+
+export default {
+  components: { UserList },
+};
 </script>
 
 <template>
   <div data-testid="home-page">
-    <h1>Home Page</h1>
+    <UserList />
   </div>
 </template>
 
