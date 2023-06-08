@@ -17,7 +17,7 @@ const server = setupServer(
         content: [
           {
             id: 1,
-            username: "user-in-list",
+            username: "user1",
             email: "user-in-list@mail.com",
             image: null,
           },

@@ -52,19 +52,14 @@ const users = [
 
 const setup = async () => {
   const app = {
-    components: {
-      UserList,
-      LanguageSelector,
-    },
+    components: { UserList, LanguageSelector },
     template: `
         <UserList />
         <LanguageSelector />
         `,
   };
 
-  render(app, {
-    global: { plugins: [router, i18n] },
-  });
+  render(app, { global: { plugins: [router, i18n] } });
   await router.isReady();
 };
 
@@ -76,14 +71,14 @@ describe("User List", () => {
   });
 
   it("displays next page link", async () => {
-    render(UserList);
+    await setup();
     await screen.findByText("user1");
     const nextPageLink = screen.queryByText("next >");
     expect(nextPageLink).toBeInTheDocument;
   });
 
   it("displays next after clicking next", async () => {
-    render(UserList);
+    await setup();
     await screen.findByText("user1");
     const nextPageLink = screen.queryByText("next >");
     await userEvent.click(nextPageLink);
@@ -92,7 +87,7 @@ describe("User List", () => {
   });
 
   it("hides next page link at last page", async () => {
-    render(UserList);
+    await setup();
     await screen.findByText("user1");
     await userEvent.click(screen.queryByText("next >"));
     await screen.findByText("user4");
