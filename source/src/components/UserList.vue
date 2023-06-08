@@ -31,7 +31,7 @@ export default {
 <template>
   <div class="card">
     <div class="card-header text-center">
-      <h3>Users</h3>
+      <h3>{{ $t("users") }}</h3>
     </div>
 
     <ul class="list-group list-group-flash">
@@ -51,14 +51,14 @@ export default {
         @click="loadData(this.page.page - 1)"
         v-show="page.page > 0 && !this.progress"
       >
-        &lt; prev
+        {{ $t("previousPage") }}
       </button>
       <button
         class="btn btn-outline-secondary btn-sm float-end"
         @click="loadData(this.page.page + 1)"
         v-show="page.totalPages > page.page + 1 && !this.progress"
       >
-        next &gt;
+        {{ $t("nextPage") }}
       </button>
       <Spinner v-show="this.progress" />
     </div>

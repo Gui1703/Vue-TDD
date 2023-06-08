@@ -5,5 +5,9 @@
   "password": "Senha",
   "passwordRepeat": "Confirmação de Senha",
   "passwordMismatchValidation": "Senha incorreta",
-  "accountActivationNotification": "Por favor, confira seu email para ativar sua conta"
+  "accountActivationNotification": "Por favor, confira seu email para ativar sua conta",
+  "users": "Usuários",
+  "nextPage": "próximo >",
+  "previousPage": "< anterior",
+  "login": "Entrar"
 }

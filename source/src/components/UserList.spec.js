@@ -2,10 +2,9 @@ import UserList from "./UserList.vue";
 import { render, screen } from "@testing-library/vue";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-// import userEvent from "@testing-library/user-event";
 import router from "../routes/router";
-// import en from "../locales/en.json";
-// import pt from "../locales/pt.json";
+import en from "../locales/en.json";
+import pt from "../locales/pt.json";
 import { i18n } from "../locales/i18n";
 import LanguageSelector from "./LanguageSelector";
 import userEvent from "@testing-library/user-event";
@@ -139,5 +138,28 @@ describe("User List", () => {
     await userEvent.click(screen.queryByText("next >"));
     const spinner = screen.queryByRole("status");
     expect(spinner).toBeVisible;
+  });
+});
+
+describe("Internationalization", () => {
+  it("initially displays header and navigation links in english", async () => {
+    await setup();
+    await screen.findByText("user1");
+    await userEvent.click(screen.queryByText("next >"));
+    await screen.findByText("user4");
+    expect(screen.queryByText(en.users)).toBeInTheDocument;
+    expect(screen.queryByText(en.nextPage)).toBeInTheDocument;
+    expect(screen.queryByText(en.previousPage)).toBeInTheDocument;
+  });
+  it("displays header and navigation links in portuguese after selecting that language", async () => {
+    await setup();
+    await screen.findByText("user1");
+    await userEvent.click(screen.queryByText("next >"));
+    await screen.findByText("user4");
+    const portugueseLanguage = screen.queryByTitle("Portuguese");
+    await userEvent.click(portugueseLanguage);
+    expect(screen.queryByText(pt.users)).toBeInTheDocument;
+    expect(screen.queryByText(pt.nextPage)).toBeInTheDocument;
+    expect(screen.queryByText(pt.previousPage)).toBeInTheDocument;
   });
 });
