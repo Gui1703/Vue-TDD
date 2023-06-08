@@ -12,5 +12,5 @@ export const activate = async (token) => {
 };
 
 export const loadUsers = async () => {
-  return await axios.get("/api/1.0/users");
+  return await axios.get("/api/1.0/users", { params: { page: 0, size: 3 } });
 };
