@@ -1,7 +1,9 @@
 <script>
 import { loadUsers } from "../api/apiCalls";
+import UserListItem from "../components/UserListItem.vue";
 
 export default {
+  components: { UserListItem },
   data() {
     return { page: { content: [], page: 0, size: 0, totalPages: 0 } };
   },
@@ -31,7 +33,7 @@ export default {
         :key="user.id"
         @click="$router.push(`/user/${user.id}`)"
       >
-        {{ user.username }}
+        <UserListItem :user="user" />
       </li>
     </ul>
 
