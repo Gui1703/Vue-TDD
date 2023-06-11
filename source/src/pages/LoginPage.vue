@@ -1,38 +1,3 @@
-<template>
-  <div
-    class="col-lg-6 offset-lg-3 col-md-8 offset-md-2"
-    data-testid="login-page"
-  >
-    <form class="mt-5">
-      <Card>
-        <template v-slot:header>
-          <h1>{{ $t("login") }}</h1>
-        </template>
-        <template v-slot:body>
-          <InputComponent id="e-mail" :label="$t('email')" v-model="email" />
-          <InputComponent
-            id="password"
-            :label="$t('password')"
-            v-model="password"
-            type="password"
-          />
-          <div class="alert alert-danger text-center" v-if="failMessage">
-            {{ failMessage }}
-          </div>
-          <div class="text-center">
-            <ButtonWithProgress
-              :api-progress="apiProgress"
-              :disabled="isDisabled"
-              :on-click="submit"
-            >
-              {{ $t("login") }}
-            </ButtonWithProgress>
-          </div>
-        </template>
-      </Card>
-    </form>
-  </div>
-</template>
 <script>
 import ButtonWithProgress from "../components/ButtonWithProgress.vue";
 import Card from "../components/Card.vue";
@@ -79,3 +44,39 @@ export default {
   },
 };
 </script>
+
+<template>
+  <div
+    class="col-lg-6 offset-lg-3 col-md-8 offset-md-2"
+    data-testid="login-page"
+  >
+    <form class="mt-5">
+      <Card>
+        <template v-slot:header>
+          <h1>{{ $t("login") }}</h1>
+        </template>
+        <template v-slot:body>
+          <InputComponent id="e-mail" :label="$t('email')" v-model="email" />
+          <InputComponent
+            id="password"
+            :label="$t('password')"
+            v-model="password"
+            type="password"
+          />
+          <div class="alert alert-danger text-center" v-if="failMessage">
+            {{ failMessage }}
+          </div>
+          <div class="text-center">
+            <ButtonWithProgress
+              :api-progress="apiProgress"
+              :disabled="isDisabled"
+              :on-click="submit"
+            >
+              {{ $t("login") }}
+            </ButtonWithProgress>
+          </div>
+        </template>
+      </Card>
+    </form>
+  </div>
+</template>

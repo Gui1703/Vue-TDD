@@ -1,10 +1,11 @@
 <script>
 import { loadUsers } from "../api/apiCalls";
-import UserListItem from "../components/UserListItem.vue";
+import Card from "../components/Card.vue";
 import Spinner from "../components/Spinner.vue";
+import UserListItem from "../components/UserListItem.vue";
 
 export default {
-  components: { Spinner, UserListItem },
+  components: { Card, Spinner, UserListItem },
   data() {
     return {
       page: { content: [], page: 0, size: 0, totalPages: 0 },
@@ -12,10 +13,7 @@ export default {
     };
   },
   async mounted() {
-    this.progress = true;
-    const { data } = await loadUsers();
-    this.page = data;
-    this.progress = false;
+    await this.loadData();
   },
   methods: {
     async loadData(pageIndex) {
@@ -29,40 +27,40 @@ export default {
 </script>
 
 <template>
-  <div class="card">
-    <div class="card-header text-center">
+  <Card>
+    <template v-slot:header>
       <h3>{{ $t("users") }}</h3>
-    </div>
-
-    <ul class="list-group list-group-flash">
-      <li
-        class="list-group-item list-group-item-action"
-        v-for="user in page.content"
-        :key="user.id"
-        @click="$router.push(`/user/${user.id}`)"
-      >
-        <UserListItem :user="user" />
-      </li>
-    </ul>
-
-    <div class="card-footer text-center">
+    </template>
+    <template v-slot:default>
+      <ul class="list-group list-group-flush">
+        <li
+          class="list-group-item list-group-item-action"
+          v-for="user in page.content"
+          @click="$router.push('/user/' + user.id)"
+          :key="user.id"
+        >
+          <UserListItem :user="user" />
+        </li>
+      </ul>
+    </template>
+    <template v-slot:footer>
       <button
         class="btn btn-outline-secondary btn-sm float-start"
         @click="loadData(this.page.page - 1)"
-        v-show="page.page > 0 && !this.progress"
+        v-show="this.page.page !== 0 && !this.progress"
       >
         {{ $t("previousPage") }}
       </button>
       <button
         class="btn btn-outline-secondary btn-sm float-end"
-        @click="loadData(this.page.page + 1)"
-        v-show="page.totalPages > page.page + 1 && !this.progress"
+        @click="loadData(page.page + 1)"
+        v-show="this.page.totalPages > page.page + 1 && !this.progress"
       >
         {{ $t("nextPage") }}
       </button>
-      <Spinner v-show="this.progress" />
-    </div>
-  </div>
+      <Spinner size="normal" v-show="this.progress" />
+    </template>
+  </Card>
 </template>
 
 <style scoped>
