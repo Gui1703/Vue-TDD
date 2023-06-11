@@ -1,9 +1,9 @@
 import { render, screen, waitFor } from "@testing-library/vue";
-import LoginPage from "./LoginPage.vue";
-import userEvent from "@testing-library/user-event";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
 import { i18n } from "../locales/i18n";
+import LoginPage from "./LoginPage.vue";
+import userEvent from "@testing-library/user-event";
 import en from "../locales/en.json";
 import pt from "../locales/pt.json";
 import LanguageSelector from "../components/LanguageSelector.vue";
@@ -38,11 +38,7 @@ let emailInput, passwordInput, button;
 
 describe("Login Page", () => {
   const setup = async () => {
-    render(LoginPage, {
-      global: {
-        plugins: [i18n],
-      },
-    });
+    render(LoginPage, { global: { plugins: [i18n] } });
     emailInput = screen.queryByLabelText("E-mail");
     passwordInput = screen.queryByLabelText("Password");
     button = screen.queryByRole("button", { name: "Login" });
@@ -99,8 +95,6 @@ describe("Login Page", () => {
     it("displays spinner after clicking the button", async () => {
       await setupFilled();
       expect(screen.queryByRole("status")).not.toBeInTheDocument;
-      // await userEvent.click(button)
-      // expect(screen.queryByRole('status')).toBeInTheDocument()
     });
 
     it("hides spinner after api call finishes with fail reponse", async () => {
@@ -114,8 +108,6 @@ describe("Login Page", () => {
     it("sends email and passord to backend after clicking the button", async () => {
       await setupFilled();
       await userEvent.click(button);
-      // const spinner = screen.queryByRole('status')
-      // await waitForElementToBeRemoved(spinner)
       expect(requestBody).toEqual({
         email: "user100@mail.com",
         password: "P4ssoword",
@@ -157,20 +149,13 @@ describe("Login Page", () => {
     let portugueseLanguage;
     const setupTranslation = () => {
       const app = {
-        components: {
-          LoginPage,
-          LanguageSelector,
-        },
+        components: { LoginPage, LanguageSelector },
         template: `
         <LoginPage/>
         <LanguageSelector/>
         `,
       };
-      render(app, {
-        global: {
-          plugins: [i18n],
-        },
-      });
+      render(app, { global: { plugins: [i18n] } });
       portugueseLanguage = screen.queryByTitle("Portuguese");
     };
 
@@ -193,6 +178,18 @@ describe("Login Page", () => {
         .toBeInTheDocument;
       expect(screen.queryByLabelText(pt.email)).toBeInTheDocument;
       expect(screen.queryByLabelText(pt.password)).toBeInTheDocument;
+    });
+
+    it("sends accept-language header as pt in login request", async () => {
+      setupTranslation();
+      await userEvent.click(portugueseLanguage);
+      const emailInput = screen.queryByLabelText(pt.email);
+      const passwordInput = screen.queryByLabelText(pt.password);
+      await userEvent.type(emailInput, "user100@mail.com");
+      await userEvent.type(passwordInput, "N3WP4ssword");
+      const button = screen.queryByRole("button", { name: pt.login });
+      await userEvent.click(button);
+      expect(acceptLanguageHeader).toBe("en");
     });
   });
 });

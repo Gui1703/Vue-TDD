@@ -20,5 +20,7 @@ export const getUserById = async (id) => {
 };
 
 export const login = async (creds) => {
-  return await axios.post("/api/1.0/auth", creds);
+  return await axios.post("/api/1.0/auth", creds, {
+    headers: { "Accept-Language": i18n.global.locale },
+  });
 };
