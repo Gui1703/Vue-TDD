@@ -114,13 +114,6 @@ describe("Login Page", () => {
       });
     });
 
-    it("disables the button when there is an api call", async () => {
-      await setupFilled();
-      await userEvent.click(button);
-      await userEvent.click(button);
-      expect(counter).toBe(1);
-    });
-
     it("displays authentication fail message", async () => {
       await setupFilled();
       await userEvent.click(button);

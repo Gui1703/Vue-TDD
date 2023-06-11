@@ -25,7 +25,7 @@
               :disabled="isDisabled || apiProgress"
               @click.prevent="submit"
             >
-              <Spinner />
+              <Spinner v-if="apiProgress" />
               {{ $t("login") }}
             </button>
           </div>

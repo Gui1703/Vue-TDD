@@ -17,7 +17,7 @@ const server = setupServer(
         content: [
           {
             id: 1,
-            username: "user1",
+            username: "user-in-list",
             email: "user-in-list@mail.com",
             image: null,
           },
@@ -39,6 +39,9 @@ const server = setupServer(
         image: null,
       })
     );
+  }),
+  rest.post("/api/1.0/auth", (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json({ id: 5, username: "user5" }));
   })
 );
 
@@ -49,7 +52,6 @@ beforeEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 const setup = async (path) => {
-  window.history.pushState({}, "", path);
   render(App, { global: { plugins: [i18n, router] } });
   await router.replace(path);
   await router.isReady();
@@ -130,10 +132,54 @@ describe("Routing", () => {
   );
 
   it("displays home page when clicking brand logo", async () => {
-    await setup("login");
+    await setup("/login");
     const image = screen.queryByAltText("Hoaxify Logo");
     await userEvent.click(image);
     const page = await screen.findByTestId("home-page");
     expect(page).toBeInTheDocument;
+  });
+  it("navigates to user page when clicking the username on user list", async () => {
+    await setup("/");
+    const user = await screen.findByText("user-in-list");
+    await userEvent.click(user);
+    const page = await screen.findByTestId("user-page");
+    expect(page).toBeInTheDocument;
+  });
+});
+describe("Login", () => {
+  const setupLoggedIn = async () => {
+    await setup("/login");
+    await userEvent.type(screen.queryByLabelText("E-mail"), "user5@mail.com");
+    await userEvent.type(screen.queryByLabelText("Password"), "P4ssword");
+    await userEvent.click(screen.queryByRole("button", { name: "Login" }));
+  };
+
+  it("redirects to homepage after successful login", async () => {
+    await setupLoggedIn();
+    const page = await screen.findByTestId("home-page");
+    expect(page).toBeInTheDocument;
+  });
+  it("hides Login and Sign Up links from nav bar after successful login", async () => {
+    await setupLoggedIn();
+    await screen.findByTestId("home-page");
+    const loginLink = screen.queryByRole("link", { name: "Login" });
+    const signUpLink = screen.queryByRole("link", { name: "Sign Up" });
+    expect(loginLink).not.toBeInTheDocument;
+    expect(signUpLink).not.toBeInTheDocument;
+  });
+  it("displays My Profile link on nav bar after successful login", async () => {
+    await setupLoggedIn();
+    await screen.findByTestId("home-page");
+    const myProfileLink = screen.queryByRole("link", { name: "My Profile" });
+    expect(myProfileLink).toBeInTheDocument;
+  });
+  it("displays User Page for the logged in user after clicking My Profile link", async () => {
+    await setupLoggedIn();
+    await screen.findByTestId("home-page");
+    const myProfileLink = screen.queryByRole("link", { name: "My Profile" });
+    await userEvent.click(myProfileLink);
+    await screen.findByTestId("user-page");
+    const header = await screen.findByRole("heading", { name: "user5" });
+    expect(header).toBeInTheDocument;
   });
 });
