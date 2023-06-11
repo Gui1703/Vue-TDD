@@ -20,14 +20,13 @@
             {{ failMessage }}
           </div>
           <div class="text-center">
-            <button
-              class="btn btn-primary"
-              :disabled="isDisabled || apiProgress"
-              @click.prevent="submit"
+            <ButtonWithProgress
+              :api-progress="apiProgress"
+              :disabled="isDisabled"
+              :on-click="submit"
             >
-              <Spinner v-if="apiProgress" />
               {{ $t("login") }}
-            </button>
+            </ButtonWithProgress>
           </div>
         </template>
       </Card>
@@ -35,13 +34,13 @@
   </div>
 </template>
 <script>
-import InputComponent from "../components/InputComponent.vue";
-import Spinner from "../components/Spinner.vue";
+import ButtonWithProgress from "../components/ButtonWithProgress.vue";
 import Card from "../components/Card.vue";
+import InputComponent from "../components/InputComponent.vue";
 import { login } from "../api/apiCalls";
 export default {
   name: "LoginPage",
-  components: { Card, Spinner, InputComponent },
+  components: { ButtonWithProgress, Card, InputComponent },
   data() {
     return {
       email: "",
