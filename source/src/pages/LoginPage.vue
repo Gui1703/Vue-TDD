@@ -38,6 +38,7 @@
 import InputComponent from "../components/InputComponent.vue";
 import Spinner from "../components/Spinner.vue";
 import Card from "../components/Card.vue";
+import { login } from "../api/apiCalls";
 export default {
   name: "LoginPage",
   components: { Card, Spinner, InputComponent },
@@ -58,6 +59,10 @@ export default {
     async submit() {
       this.apiProgress = true;
       try {
+        await login({
+          email: this.email,
+          password: this.password,
+        });
         this.$router.push("/");
       } catch (error) {
         this.failMessage = error.response.data.message;

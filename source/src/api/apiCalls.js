@@ -18,3 +18,7 @@ export const loadUsers = async (page) => {
 export const getUserById = async (id) => {
   return await axios.get(`/api/1.0/users/${id}`);
 };
+
+export const login = async (creds) => {
+  return await axios.post("/api/1.0/auth", creds);
+};
