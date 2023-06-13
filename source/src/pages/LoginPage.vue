@@ -28,7 +28,10 @@ export default {
           password: this.password,
         });
         this.$router.push("/");
-        this.$store.commit("loginSuccess", data.id);
+
+        const response = { ...data, header: `Bearer ${data.token}` };
+
+        this.$store.commit("loginSuccess", response);
       } catch (error) {
         this.failMessage = error.response.data.message;
       }

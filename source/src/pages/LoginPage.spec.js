@@ -7,6 +7,7 @@ import userEvent from "@testing-library/user-event";
 import en from "../locales/en.json";
 import pt from "../locales/pt.json";
 import LanguageSelector from "../components/LanguageSelector.vue";
+import store from "../state/store";
 
 let requestBody,
   acceptLanguageHeader,
