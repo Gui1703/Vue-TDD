@@ -1,8 +1,9 @@
-import { render, screen } from "@testing-library/vue";
 import App from "./App.vue";
-import { i18n } from "./locales/i18n";
 import userEvent from "@testing-library/user-event";
 import router from "./routes/router";
+import store from "./state/store";
+import { render, screen } from "@testing-library/vue";
+import { i18n } from "./locales/i18n";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
 
@@ -52,7 +53,7 @@ beforeEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 const setup = async (path) => {
-  render(App, { global: { plugins: [i18n, router] } });
+  render(App, { global: { plugins: [i18n, router, store] } });
   await router.replace(path);
   await router.isReady();
 };
